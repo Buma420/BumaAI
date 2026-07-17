@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from app.memory.database import save_memory, load_memories
+from app.memory.models import Memory 
 
 app = FastAPI(
     title="BumaAI",
@@ -21,11 +22,17 @@ def home():
 @app.post("/chat")
 def chat(chat_message: ChatMessage):
 
-    save_memory(chat_message.message)
+    memory = Memory(
+        content=chat_message.message,
+        memory_type="conversation",
+        importance=5
+    )
+
+    save_memory(memory)
 
     memories = load_memories()
 
     return {
-        "reply": f"BumaAI received: {chat_message.message}",
+        "reply": f"BumaAI remembered: {chat_message.message}",
         "memory_count": len(memories)
     }
